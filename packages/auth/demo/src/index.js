@@ -553,41 +553,42 @@ function arrayBufferToBase64(buffer) {
   return window.btoa(binary);
 }
 
-function publicKeyCredentialToJSON(pubKeyCred) {
-  if (pubKeyCred instanceof PublicKeyCredential) {
-    const serializedCredential = {
-      id: pubKeyCred.id,
-      type: pubKeyCred.type,
-      rawId: arrayBufferToBase64(pubKeyCred.rawId),
-      response: {
-        clientDataJSON: arrayBufferToBase64(pubKeyCred.response.clientDataJSON)
-        // Add other fields as necessary, converting ArrayBuffer fields to Base64
-      }
-    };
-
-    // Handle AttestationResponse if it exists
-    if (pubKeyCred.response instanceof AuthenticatorAttestationResponse) {
-      serializedCredential.response.attestationObject = arrayBufferToBase64(
-        pubKeyCred.response.attestationObject
-      );
-    }
-
-    // Handle AuthenticatorAssertionResponse if it exists
-    if (pubKeyCred.response instanceof AuthenticatorAssertionResponse) {
-      serializedCredential.response.authenticatorData = arrayBufferToBase64(
-        pubKeyCred.response.authenticatorData
-      );
-      serializedCredential.response.signature = arrayBufferToBase64(
-        pubKeyCred.response.signature
-      );
-      serializedCredential.response.userHandle = pubKeyCred.response.userHandle
-        ? arrayBufferToBase64(pubKeyCred.response.userHandle)
-        : null;
-    }
-
-    return JSON.stringify(serializedCredential);
+function publicKeyCredentialToJSONString(pubKeyCred) {
+  if (!(pubKeyCred instanceof PublicKeyCredential)) {
+    throw new Error('Input was not a PublicKeyCredential object');
   }
-  throw new Error('Input was not a PublicKeyCredential object');
+
+  const serializedCredential = {
+    id: pubKeyCred.id,
+    type: pubKeyCred.type,
+    rawId: arrayBufferToBase64(pubKeyCred.rawId),
+    response: {
+      clientDataJSON: arrayBufferToBase64(pubKeyCred.response.clientDataJSON)
+      // You can add other fields as necessary, converting ArrayBuffer fields to Base64
+    }
+  };
+
+  // Handle AttestationResponse if it exists
+  if (pubKeyCred.response instanceof AuthenticatorAttestationResponse) {
+    serializedCredential.response.attestationObject = arrayBufferToBase64(
+      pubKeyCred.response.attestationObject
+    );
+  }
+
+  // Handle AuthenticatorAssertionResponse if it exists
+  if (pubKeyCred.response instanceof AuthenticatorAssertionResponse) {
+    serializedCredential.response.authenticatorData = arrayBufferToBase64(
+      pubKeyCred.response.authenticatorData
+    );
+    serializedCredential.response.signature = arrayBufferToBase64(
+      pubKeyCred.response.signature
+    );
+    serializedCredential.response.userHandle = pubKeyCred.response.userHandle
+      ? arrayBufferToBase64(pubKeyCred.response.userHandle)
+      : null;
+  }
+
+  return JSON.stringify(serializedCredential);
 }
 
 function base64ToArrayBuffer(base64) {
@@ -665,15 +666,16 @@ function JSONtoPublicKeyCredential(jsonString) {
 async function onCreateCredential() {
   const name = $('#name').val();
   const response = JSON.parse($('#start-enroll-response').val());
-  console.log(response);
   const credential = await debugCreateCredential(name, response);
-  const cred_str = publicKeyCredentialToJSON(credential);
+  const cred_str = publicKeyCredentialToJSONString(credential);
   $('#credential').val(cred_str);
 }
 
 async function onGetCredential() {
   const name = $('#name').val();
 }
+
+// Enroll
 
 async function onPrepareStartEnrollRequest() {
   const request = await debugPrepareStartPasskeyEnrollmentRequest(activeUser());
@@ -710,6 +712,8 @@ async function onGetFinalizeEnrollResponse() {
   );
   $('#finalize-enroll-response').val(JSON.stringify(response));
 }
+
+// Sign in
 
 async function onPrepareStartSignInRequest() {
   const request = await debugPrepareStartPasskeySignInRequest();

@@ -142,10 +142,10 @@ export async function _performApiRequest<T, V>(
       _getFinalTarget(
         auth,
         'staging-identitytoolkit.sandbox.googleapis.com',
-        // auth.config.apiHost,
         path,
         query
       ),
+      // _getFinalTarget(auth, auth.config.apiHost, path, query),
       {
         method,
         headers,

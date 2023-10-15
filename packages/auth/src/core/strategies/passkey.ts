@@ -185,31 +185,12 @@ export async function enrollPasskey(
 //   }
 // }
 
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary);
-}
-
-function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binaryString = window.atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
 function getPasskeyCredentialCreationOptions(
   response: StartPasskeyEnrollmentResponse,
   name: string = ''
 ): PublicKeyCredentialCreationOptions {
   const options = response.credentialCreationOptions!;
+  const encoder = new TextEncoder();
 
   if (name === '') {
     name = 'Unnamed account (Web)';
@@ -217,23 +198,27 @@ function getPasskeyCredentialCreationOptions(
 
   options.user!.name = name;
   options.user!.displayName = name;
-  options.user!.id = base64ToArrayBuffer(
+  options.user!.id = encoder.encode(
     options.user.id as unknown as string
-  );
+  ).buffer;
 
   const rpId = window.location.hostname;
+  // const rpId = option.rp?.id!;
+  // const rpId = 'localhost';
   options.rp!.id = rpId;
   options.rp!.name = rpId;
+  options.challenge = encoder.encode(
+    options.challenge as unknown as string
+  ).buffer;
 
-  const challengeStr = options.challenge as unknown as string;
-  console.log('Challenge in response: ');
-  console.log(challengeStr);
-  options.challenge = base64ToArrayBuffer(challengeStr);
-
-  const challengeBuffer = options.challenge;
-  const text = arrayBufferToBase64(challengeBuffer);
-  console.log('Challenge after convert back: ');
-  console.log(text);
+  options.pubKeyCredParams.forEach(param => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tempParam = param as any;
+    if (tempParam.credentialType) {
+      param.type = tempParam.credentialType;
+      delete tempParam.credentialType;
+    }
+  });
 
   return options;
 }
@@ -243,20 +228,13 @@ export async function debugCreateCredential(
   name: string,
   debugStartPasskeyEnrollmentResponse: StartPasskeyEnrollmentResponse
 ): Promise<PublicKeyCredential> {
-  // console.log('before getPasskeyCredentialCreationOptions: ');
-  // console.log(debugStartPasskeyEnrollmentResponse.credentialCreationOptions);
   const options = getPasskeyCredentialCreationOptions(
     debugStartPasskeyEnrollmentResponse,
     name
   );
-  // console.log('after getPasskeyCredentialCreationOptions: ');
-  // console.log(options);
   const credential = (await navigator.credentials.create({
     publicKey: options
   })) as PublicKeyCredential;
-  // console.log('create credential: ');
-  // console.log(credential);
-
   return credential;
 }
 
@@ -276,17 +254,7 @@ export async function debugGetStartPasskeyEnrollmentResponse(
 ): Promise<StartPasskeyEnrollmentResponse> {
   const userInternal = getModularInstance(user) as UserInternal;
   const authInternal = _castAuth(userInternal.auth);
-  const response = await startPasskeyEnrollment(authInternal, request);
-  const options = response.credentialCreationOptions as PublicKeyCredentialCreationOptions;
-  // options.pubKeyCredParams.forEach(param => {
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   const tempParam = param as any;
-  //   if (tempParam.credentialType) {
-  //     param.type = tempParam.credentialType;
-  //     delete tempParam.credentialType;
-  //   }
-  // });
-  return response;
+  return startPasskeyEnrollment(authInternal, request);
 }
 
 export async function debugPrepareFinalizePasskeyEnrollmentRequest(

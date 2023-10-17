@@ -185,6 +185,24 @@ export async function enrollPasskey(
 //   }
 // }
 
+function base64ToBase64url(b64: string): string {
+  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function base64urlToBase64(b64url: string): string {
+  const b64 = b64url.replace('-', '+').replace('_', '/');
+
+  // Add padding
+  switch (b64.length % 4) {
+    case 2:
+      return b64 + '==';
+    case 3:
+      return b64 + '=';
+    default:
+      return b64;
+  }
+}
+
 function getPasskeyCredentialCreationOptions(
   response: StartPasskeyEnrollmentResponse,
   name: string = ''
@@ -206,8 +224,13 @@ function getPasskeyCredentialCreationOptions(
   options.rp!.id = rpId;
   options.rp!.name = rpId;
   
-  const challengeStr = options.challenge as unknown as string;
-  options.challenge = Uint8Array.from(atob(challengeStr), c => c.charCodeAt(0));
+  const challengeBase64 = options.challenge as unknown as string;
+  console.log(challengeBase64);
+  const challengeBase64Url = base64ToBase64url(challengeBase64);
+  console.log(challengeBase64Url);
+  options.challenge = Uint8Array.from(atob(challengeBase64), c =>
+    c.charCodeAt(0)
+  );
 
   return options;
 }

@@ -306,6 +306,11 @@ export function debugCreateCredential(name: string, debugStartPasskeyEnrollmentR
 // @public
 export const debugErrorMap: AuthErrorMap;
 
+// Warning: (ae-forgotten-export) The symbol "StartPasskeySignInResponse" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export function debugGetCredential(name: string, debugStartPasskeySignInResponse: StartPasskeySignInResponse): Promise<PublicKeyCredential>;
+
 // Warning: (ae-forgotten-export) The symbol "FinalizePasskeyEnrollmentRequest" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "FinalizePasskeyEnrollmentResponse" needs to be exported by the entry point index.d.ts
 //
@@ -324,7 +329,6 @@ export function debugGetFinalizePasskeySignInResponse(auth: Auth, request: Final
 export function debugGetStartPasskeyEnrollmentResponse(user: User, request: StartPasskeyEnrollmentRequest): Promise<StartPasskeyEnrollmentResponse>;
 
 // Warning: (ae-forgotten-export) The symbol "StartPasskeySignInRequest" needs to be exported by the entry point index.d.ts
-// Warning: (ae-forgotten-export) The symbol "StartPasskeySignInResponse" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
 export function debugGetStartPasskeySignInResponse(auth: Auth, request: StartPasskeySignInRequest): Promise<StartPasskeySignInResponse>;

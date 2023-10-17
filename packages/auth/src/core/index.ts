@@ -297,7 +297,7 @@ export {
 export { signInWithPasskey, enrollPasskey } from './strategies/passkey';
 export {
   debugCreateCredential,
-  // debugGetCredential,
+  debugGetCredential,
   debugPrepareStartPasskeyEnrollmentRequest,
   debugGetStartPasskeyEnrollmentResponse,
   debugPrepareFinalizePasskeyEnrollmentRequest,

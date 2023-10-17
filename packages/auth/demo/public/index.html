@@ -852,21 +852,16 @@
               </form>
             </div>
             <div class="tab-pane" id="debugging-section">
-              <div class="group">Credential</div>
+              <div class="group">Enroll</div>
               <form class="form form-bordered no-submit">
-                <input type="text" name="Name" id="name"
+                <input type="text" name="Name" id="name-enroll"
                        class="form-control" placeholder="Name" />
-                <textarea type="text" name="Credential" id="credential"
+                <textarea type="text" name="Credential" id="credential-enroll"
                           class="form-control" placeholder="Credential"></textarea>
-                <button class="btn btn-block btn-primary" id="create-credential">
+                <button class="btn btn-block btn-primary" id="create-credential-enroll">
                   Create Credential
                 </button>
-                <button class="btn btn-block btn-primary" id="get-credential">
-                  Get Credential
-                </button>
               </form>
-
-              <div class="group">Enroll</div>
               <form class="form form-bordered no-submit">
                 <textarea name="Start Enroll Request" id="start-enroll-request"
                           class="form-control" placeholder="Request"></textarea>
@@ -898,6 +893,15 @@
             </div>
 
             <div class="group">Sign In</div>
+              <form class="form form-bordered no-submit">
+                <input type="text" name="Name" id="name-signin"
+                       class="form-control" placeholder="Name" />
+                <textarea type="text" name="Credential" id="credential-signin"
+                          class="form-control" placeholder="Credential"></textarea>
+                <button class="btn btn-block btn-primary" id="get-credential-signin">
+                  Get Credential
+                </button>
+              </form>
               <form class="form form-bordered no-submit">
                 <textarea name="Start Sign In Request" id="start-signin-request"
                           class="form-control" placeholder="Request"></textarea>

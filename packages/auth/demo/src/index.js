@@ -77,6 +77,7 @@ import {
   signInWithPasskey,
   enrollPasskey,
   debugCreateCredential,
+  debugGetCredential,
   debugPrepareStartPasskeyEnrollmentRequest,
   debugGetStartPasskeyEnrollmentResponse,
   debugPrepareFinalizePasskeyEnrollmentRequest,
@@ -662,17 +663,20 @@ function JSONtoPublicKeyCredential(jsonString) {
   return pubKeyCred;
 }
 
-async function onCreateCredential() {
-  const name = $('#name').val();
+async function onCreateCredentialEnroll() {
+  const name = $('#name-enroll').val();
   const response = JSON.parse($('#start-enroll-response').val());
-  console.log(response);
   const credential = await debugCreateCredential(name, response);
   const cred_str = publicKeyCredentialToJSON(credential);
-  $('#credential').val(cred_str);
+  $('#credential-enroll').val(cred_str);
 }
 
-async function onGetCredential() {
-  const name = $('#name').val();
+async function onGetCredentialSignIn() {
+  const name = $('#name-signin').val();
+  const response = JSON.parse($('#start-signin-response').val());
+  const credential = await debugGetCredential(name, response);
+  const cred_str = publicKeyCredentialToJSON(credential);
+  $('#credential-signin').val(cred_str);
 }
 
 async function onPrepareStartEnrollRequest() {
@@ -691,7 +695,7 @@ async function onGetStartEnrollResponse() {
 
 async function onPrepareFinalizeEnrollRequest() {
   const name = $('#name').val();
-  const cred_str = $('#credential').val();
+  const cred_str = $('#credential-enroll').val();
   const credential = JSONtoPublicKeyCredential(cred_str);
   console.log(credential);
   const request = await debugPrepareFinalizePasskeyEnrollmentRequest(
@@ -727,7 +731,7 @@ async function onGetStartSignInResponse() {
 
 async function onPrepareFinalizeSignInRequest() {
   const name = $('#name').val();
-  const cred_str = $('#credential').val();
+  const cred_str = $('#credential-signin').val();
   const credential = JSONtoPublicKeyCredential(cred_str);
   console.log(credential);
   const request = await debugPrepareFinalizePasskeySignInRequest(
@@ -742,6 +746,7 @@ async function onGetFinalizeSignInResponse() {
     auth,
     request
   );
+  console.log(response);
   $('#finalize-signin-response').val(JSON.stringify(response));
 }
 
@@ -2482,16 +2487,21 @@ function initApp() {
   $('#confirm-password-reset').click(onConfirmPasswordReset);
 
   // Debug
-  $('#create-credential').click(onCreateCredential);
-  $('#get-credential').click(onGetCredential);
-
+  // Enroll
   $('#prepare-start-enroll-request').click(onPrepareStartEnrollRequest);
   $('#get-start-enroll-response').click(onGetStartEnrollResponse);
+
+  $('#create-credential-enroll').click(onCreateCredentialEnroll);
+
   $('#prepare-finalize-enroll-request').click(onPrepareFinalizeEnrollRequest);
   $('#get-finalize-enroll-response').click(onGetFinalizeEnrollResponse);
 
+  // SignIn
   $('#prepare-start-signin-request').click(onPrepareStartSignInRequest);
   $('#get-start-signin-response').click(onGetStartSignInResponse);
+
+  $('#get-credential-signin').click(onGetCredentialSignIn);
+
   $('#prepare-finalize-signin-request').click(onPrepareFinalizeSignInRequest);
   $('#get-finalize-signin-response').click(onGetFinalizeSignInResponse);
 

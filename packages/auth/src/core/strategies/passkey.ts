@@ -203,22 +203,31 @@ function getPasskeyCredentialCreationOptions(
   ).buffer;
 
   const rpId = window.location.hostname;
-  // const rpId = option.rp?.id!;
-  // const rpId = 'localhost';
   options.rp!.id = rpId;
   options.rp!.name = rpId;
   options.challenge = encoder.encode(
     options.challenge as unknown as string
   ).buffer;
 
-  options.pubKeyCredParams.forEach(param => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tempParam = param as any;
-    if (tempParam.credentialType) {
-      param.type = tempParam.credentialType;
-      delete tempParam.credentialType;
-    }
-  });
+  return options;
+}
+
+function getPasskeyCredentialRequestOptions(
+  response: StartPasskeySignInResponse,
+  name: string = ''
+): PublicKeyCredentialRequestOptions {
+  const options = response.credentialRequestOptions!;
+  const encoder = new TextEncoder();
+
+  if (name === '') {
+    name = 'Unnamed account (Web)';
+  }
+
+  const rpId = window.location.hostname;
+  options.rpId = rpId;
+  options.challenge = encoder.encode(
+    options.challenge as unknown as string
+  ).buffer;
 
   return options;
 }
@@ -233,6 +242,20 @@ export async function debugCreateCredential(
     name
   );
   const credential = (await navigator.credentials.create({
+    publicKey: options
+  })) as PublicKeyCredential;
+  return credential;
+}
+
+export async function debugGetCredential(
+  name: string,
+  debugStartPasskeySignInResponse: StartPasskeySignInResponse
+): Promise<PublicKeyCredential> {
+  const options = getPasskeyCredentialRequestOptions(
+    debugStartPasskeySignInResponse,
+    name
+  );
+  const credential = (await navigator.credentials.get({
     publicKey: options
   })) as PublicKeyCredential;
   return credential;

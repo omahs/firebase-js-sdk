@@ -185,7 +185,6 @@ export async function enrollPasskey(
 //   }
 // }
 
-
 function getPasskeyCredentialCreationOptions(
   response: StartPasskeyEnrollmentResponse,
   name: string = ''
@@ -206,7 +205,8 @@ function getPasskeyCredentialCreationOptions(
   const rpId = window.location.hostname;
   options.rp!.id = rpId;
   options.rp!.name = rpId;
-
+  
+  const challengeStr = options.challenge as unknown as string;
   options.challenge = Uint8Array.from(atob(challengeStr), c => c.charCodeAt(0));
 
   return options;

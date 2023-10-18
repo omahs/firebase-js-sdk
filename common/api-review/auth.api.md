@@ -298,10 +298,8 @@ export function createUserWithEmailAndPassword(auth: Auth, email: string, passwo
 // @public
 export type CustomParameters = Record<string, string>;
 
-// Warning: (ae-forgotten-export) The symbol "StartPasskeyEnrollmentResponse" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
-export function debugCreateCredential(name: string, debugStartPasskeyEnrollmentResponse: StartPasskeyEnrollmentResponse): Promise<PublicKeyCredential>;
+export function debugCreateCredential(name: string, responseStr: string): Promise<string>;
 
 // @public
 export const debugErrorMap: AuthErrorMap;
@@ -323,10 +321,8 @@ export function debugGetFinalizePasskeyEnrollmentResponse(user: User, request: F
 // @public (undocumented)
 export function debugGetFinalizePasskeySignInResponse(auth: Auth, request: FinalizePasskeySignInRequest): Promise<FinalizePasskeySignInResponse>;
 
-// Warning: (ae-forgotten-export) The symbol "StartPasskeyEnrollmentRequest" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
-export function debugGetStartPasskeyEnrollmentResponse(user: User, request: StartPasskeyEnrollmentRequest): Promise<StartPasskeyEnrollmentResponse>;
+export function debugGetStartPasskeyEnrollmentResponse(user: User, requestStr: string): Promise<string>;
 
 // Warning: (ae-forgotten-export) The symbol "StartPasskeySignInRequest" needs to be exported by the entry point index.d.ts
 //
@@ -334,13 +330,13 @@ export function debugGetStartPasskeyEnrollmentResponse(user: User, request: Star
 export function debugGetStartPasskeySignInResponse(auth: Auth, request: StartPasskeySignInRequest): Promise<StartPasskeySignInResponse>;
 
 // @public (undocumented)
-export function debugPrepareFinalizePasskeyEnrollmentRequest(user: User, name: string, credential: PublicKeyCredential): Promise<FinalizePasskeyEnrollmentRequest>;
+export function debugPrepareFinalizePasskeyEnrollmentRequest(user: User, name: string, credentialStr: string): Promise<string>;
 
 // @public (undocumented)
 export function debugPrepareFinalizePasskeySignInRequest(credential: PublicKeyCredential): Promise<FinalizePasskeySignInRequest>;
 
 // @public (undocumented)
-export function debugPrepareStartPasskeyEnrollmentRequest(user: User): Promise<StartPasskeyEnrollmentRequest>;
+export function debugPrepareStartPasskeyEnrollmentRequest(user: User): Promise<string>;
 
 // @public (undocumented)
 export function debugPrepareStartPasskeySignInRequest(): Promise<StartPasskeySignInRequest>;

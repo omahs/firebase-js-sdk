@@ -554,7 +554,7 @@ function arrayBufferToBase64(buffer) {
   return window.btoa(binary);
 }
 
-function publicKeyCredentialToJSON(pubKeyCred) {
+function publicKeyCredentialToJSONString(pubKeyCred) {
   if (pubKeyCred instanceof PublicKeyCredential) {
     const serializedCredential = {
       id: pubKeyCred.id,
@@ -601,7 +601,7 @@ function base64ToArrayBuffer(base64) {
   return bytes.buffer;
 }
 
-function JSONtoPublicKeyCredential(jsonString) {
+function JSONStringtoPublicKeyCredential(jsonString) {
   const serializedCredential = JSON.parse(jsonString);
 
   const pubKeyCred = {
@@ -663,59 +663,49 @@ function JSONtoPublicKeyCredential(jsonString) {
   return pubKeyCred;
 }
 
-async function onCreateCredentialEnroll() {
-  const name = $('#name-enroll').val();
-  const response = JSON.parse($('#start-enroll-response').val());
-  const credential = await debugCreateCredential(name, response);
-  const cred_str = publicKeyCredentialToJSON(credential);
-  $('#credential-enroll').val(cred_str);
-}
-
-async function onGetCredentialSignIn() {
-  const name = $('#name-signin').val();
-  const response = JSON.parse($('#start-signin-response').val());
-  const credential = await debugGetCredential(name, response);
-  const cred_str = publicKeyCredentialToJSON(credential);
-  $('#credential-signin').val(cred_str);
-}
-
+// Enroll
 async function onPrepareStartEnrollRequest() {
-  const request = await debugPrepareStartPasskeyEnrollmentRequest(activeUser());
-  $('#start-enroll-request').val(JSON.stringify(request));
+  const requestStr = await debugPrepareStartPasskeyEnrollmentRequest(activeUser());
+  $('#start-enroll-request').val(requestStr);
 }
 
 async function onGetStartEnrollResponse() {
-  const request = JSON.parse($('#start-enroll-request').val());
-  const response = await debugGetStartPasskeyEnrollmentResponse(
+  const requestStr = $('#start-enroll-request').val();
+  const responseStr = await debugGetStartPasskeyEnrollmentResponse(
     activeUser(),
-    request
+    requestStr
   );
-  $('#start-enroll-response').val(JSON.stringify(response));
+  $('#start-enroll-response').val(responseStr);
+}
+
+async function onCreateCredentialEnroll() {
+  const name = $('#name-enroll').val();
+  const responseStr = $('#start-enroll-response').val();
+  const credentialStr = await debugCreateCredential(name, responseStr);
+  $('#credential-enroll').val(credentialStr);
 }
 
 async function onPrepareFinalizeEnrollRequest() {
   const name = $('#name').val();
-  const cred_str = $('#credential-enroll').val();
-  const credential = JSONtoPublicKeyCredential(cred_str);
-  console.log('credential 2: ');
-  console.log(credential);
-  const request = await debugPrepareFinalizePasskeyEnrollmentRequest(
+  const credentialStr = $('#credential-enroll').val();
+  const requestStr = await debugPrepareFinalizePasskeyEnrollmentRequest(
     activeUser(),
     name,
-    credential
+    credentialStr
   );
-  $('#finalize-enroll-request').val(JSON.stringify(request));
+  $('#finalize-enroll-request').val(requestStr);
 }
 
 async function onGetFinalizeEnrollResponse() {
-  const request = JSON.parse($('#finalize-enroll-request').val());
-  const response = await debugGetFinalizePasskeyEnrollmentResponse(
+  const requestStr = $('#finalize-enroll-request').val();
+  const responseStr = await debugGetFinalizePasskeyEnrollmentResponse(
     activeUser(),
-    request
+    requestStr
   );
-  $('#finalize-enroll-response').val(JSON.stringify(response));
+  $('#finalize-enroll-response').val(responseStr);
 }
 
+// Sign in
 async function onPrepareStartSignInRequest() {
   const request = await debugPrepareStartPasskeySignInRequest();
   $('#start-signin-request').val(JSON.stringify(request));
@@ -727,10 +717,18 @@ async function onGetStartSignInResponse() {
   $('#start-signin-response').val(JSON.stringify(response));
 }
 
+async function onGetCredentialSignIn() {
+  const name = $('#name-signin').val();
+  const response = JSON.parse($('#start-signin-response').val());
+  const credential = await debugGetCredential(name, response);
+  const cred_str = publicKeyCredentialToJSONString(credential);
+  $('#credential-signin').val(cred_str);
+}
+
 async function onPrepareFinalizeSignInRequest() {
   const name = $('#name').val();
   const cred_str = $('#credential-signin').val();
-  const credential = JSONtoPublicKeyCredential(cred_str);
+  const credential = JSONStringtoPublicKeyCredential(cred_str);
   console.log(credential);
   const request = await debugPrepareFinalizePasskeySignInRequest(credential);
   $('#finalize-signin-request').val(JSON.stringify(request));

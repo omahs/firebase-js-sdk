@@ -25,7 +25,7 @@ import {
 } from '../index';
 import { IdTokenResponse } from '../../model/id_token';
 
-interface AuthenticatorResponseJSON {
+export interface AuthenticatorResponseJSON {
   clientDataJSON: string;
   attestationObject?: string;
   authenticatorData?: string;
@@ -33,7 +33,7 @@ interface AuthenticatorResponseJSON {
   userHandle?: string;
 }
 
-interface PublicKeyCredentialJSON {
+export interface PublicKeyCredentialJSON {
   id: string;
   type: string;
   rawId: string;

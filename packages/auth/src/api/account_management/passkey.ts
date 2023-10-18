@@ -24,6 +24,7 @@ import {
   _performApiRequest
 } from '../index';
 import { IdTokenResponse } from '../../model/id_token';
+import { type } from 'os';
 
 export interface AuthenticatorAuthenticationResponse {
   credentialId: Uint8Array;
@@ -65,8 +66,9 @@ export async function startPasskeyEnrollment(
 export interface FinalizePasskeyEnrollmentRequest {
   idToken?: string;
   tenantId?: string;
-  registrationResponse?: PublicKeyCredential;
+  authenticatorRegistrationResponse?: PublicKeyCredential;
   name?: string;
+  displayName?: string;
 }
 
 export interface FinalizePasskeyEnrollmentResponse extends IdTokenResponse {

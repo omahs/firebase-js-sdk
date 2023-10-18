@@ -109,6 +109,40 @@ export async function signInWithPasskey(
   return Promise.reject(new Error('signInWithPasskey Not implemented'));
 }
 
+// function publicKeyCredentialToJSON(pubKeyCred: PublicKeyCredential): any {
+//   if (pubKeyCred instanceof Array) {
+//     let arr = [];
+//     for (let i of pubKeyCred) arr.push(publicKeyCredentialToJSON(i));
+//     return arr;
+//   }
+
+//   if (pubKeyCred instanceof ArrayBuffer) {
+//     return bufferToBase64(pubKeyCred);
+//   }
+
+//   if (pubKeyCred instanceof Object) {
+//     let obj: any = {};
+
+//     for (let key in pubKeyCred) {
+//       obj[key] = publicKeyCredentialToJSON((pubKeyCred as any)[key]);
+//     }
+
+//     return obj;
+//   }
+
+//   return pubKeyCred;
+// }
+
+// function bufferToBase64(buffer: ArrayBuffer): string {
+//   let binary = '';
+//   let bytes = new Uint8Array(buffer);
+//   let len = bytes.byteLength;
+//   for (let i = 0; i < len; i++) {
+//     binary += String.fromCharCode(bytes[i]);
+//   }
+//   return window.btoa(binary);
+// }
+
 /**
  * Links the user account with the given phone number.
  *
@@ -123,15 +157,21 @@ export async function enrollPasskey(
   const userInternal = getModularInstance(user) as UserInternal;
   const authInternal = _castAuth(userInternal.auth);
 
+  if (name === '') {
+    name = 'Unnamed account (Web)';
+  }
+
   // Start Passkey Enrollment
   const idToken = await userInternal.getIdToken();
   const startEnrollmentRequest: StartPasskeyEnrollmentRequest = {
     idToken
   };
+  console.log(startEnrollmentRequest);
   const startEnrollmentResponse = await startPasskeyEnrollment(
     authInternal,
     startEnrollmentRequest
   );
+  console.log(startEnrollmentResponse);
 
   // Create the crendential
   try {
@@ -145,12 +185,16 @@ export async function enrollPasskey(
     const idToken = await userInternal.getIdToken();
     const finalizeEnrollmentRequest: FinalizePasskeyEnrollmentRequest = {
       idToken,
-      registrationResponse: credential
+      authenticatorRegistrationResponse: credential,
+      name,
+      displayName: name
     };
+    console.log(finalizeEnrollmentRequest);
     const finalizeEnrollmentResponse = await finalizePasskeyEnrollment(
       authInternal,
       finalizeEnrollmentRequest
     );
+    console.log(finalizeEnrollmentResponse);
 
     const operationType = OperationType.LINK;
     const userCredential = await UserCredentialImpl._fromIdTokenResponse(
@@ -185,24 +229,6 @@ export async function enrollPasskey(
 //   }
 // }
 
-function base64ToBase64url(b64: string): string {
-  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function base64urlToBase64(b64url: string): string {
-  const b64 = b64url.replace('-', '+').replace('_', '/');
-
-  // Add padding
-  switch (b64.length % 4) {
-    case 2:
-      return b64 + '==';
-    case 3:
-      return b64 + '=';
-    default:
-      return b64;
-  }
-}
-
 function getPasskeyCredentialCreationOptions(
   response: StartPasskeyEnrollmentResponse,
   name: string = ''
@@ -225,9 +251,6 @@ function getPasskeyCredentialCreationOptions(
   options.rp!.name = rpId;
   
   const challengeBase64 = options.challenge as unknown as string;
-  console.log(challengeBase64);
-  const challengeBase64Url = base64ToBase64url(challengeBase64);
-  console.log(challengeBase64Url);
   options.challenge = Uint8Array.from(atob(challengeBase64), c =>
     c.charCodeAt(0)
   );
@@ -314,7 +337,7 @@ export async function debugPrepareFinalizePasskeyEnrollmentRequest(
   const idToken = await userInternal.getIdToken();
   return {
     idToken,
-    registrationResponse: credential,
+    authenticatorRegistrationResponse: credential,
     name
   };
 }

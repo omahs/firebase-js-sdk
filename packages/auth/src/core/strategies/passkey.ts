@@ -163,7 +163,6 @@ function getPasskeyCredentialCreationOptions(
   name: string = ''
 ): PublicKeyCredentialCreationOptions {
   const options = response.credentialCreationOptions!;
-  const encoder = new TextEncoder();
 
   if (name === '') {
     name = 'Unnamed account (Web)';
@@ -171,9 +170,9 @@ function getPasskeyCredentialCreationOptions(
 
   options.user!.name = name;
   options.user!.displayName = name;
-  options.user!.id = encoder.encode(
-    options.user.id as unknown as string
-  ).buffer;
+
+  const userId = options.user!.id as unknown as string;
+  options.user!.id = Uint8Array.from(atob(userId), c => c.charCodeAt(0));
 
   const rpId = window.location.hostname;
   options.rp!.id = rpId;
@@ -192,7 +191,6 @@ function getPasskeyCredentialRequestOptions(
   name: string = ''
 ): PublicKeyCredentialRequestOptions {
   const options = response.credentialRequestOptions!;
-  const encoder = new TextEncoder();
 
   if (name === '') {
     name = 'Unnamed account (Web)';
@@ -200,9 +198,11 @@ function getPasskeyCredentialRequestOptions(
 
   const rpId = window.location.hostname;
   options.rpId = rpId;
-  options.challenge = encoder.encode(
-    options.challenge as unknown as string
-  ).buffer;
+
+  const challengeBase64 = options.challenge as unknown as string;
+  options.challenge = Uint8Array.from(atob(challengeBase64), c =>
+    c.charCodeAt(0)
+  );
 
   return options;
 }
@@ -230,9 +230,13 @@ export async function debugGetCredential(
     debugStartPasskeySignInResponse,
     name
   );
+  console.log("options: ");
+  console.log(options);
   const credential = (await navigator.credentials.get({
     publicKey: options
   })) as PublicKeyCredential;
+  console.log('credential 1: ');
+  console.log(credential);
   return credential;
 }
 

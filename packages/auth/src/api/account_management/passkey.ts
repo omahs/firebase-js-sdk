@@ -43,6 +43,8 @@ interface PublicKeyCredentialJSON {
 export function publicKeyCredentialToJSON(
   pubKeyCred: PublicKeyCredential
 ): PublicKeyCredentialJSON {
+  console.log('pubKeyCredentialToJSON');
+  console.log(pubKeyCred);
   // Convert ArrayBuffer to Base64
   function bufferToBase64(buffer: ArrayBuffer): string {
     const byteArray = Array.from(new Uint8Array(buffer));

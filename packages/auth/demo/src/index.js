@@ -697,6 +697,7 @@ async function onPrepareFinalizeEnrollRequest() {
   const name = $('#name').val();
   const cred_str = $('#credential-enroll').val();
   const credential = JSONtoPublicKeyCredential(cred_str);
+  console.log('credential 2: ');
   console.log(credential);
   const request = await debugPrepareFinalizePasskeyEnrollmentRequest(
     activeUser(),

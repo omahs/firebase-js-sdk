@@ -209,31 +209,13 @@ function getPasskeyCredentialRequestOptions(
 }
 
 // Debugging
-export async function debugGetCredential(
-  name: string,
-  debugStartPasskeySignInResponse: StartPasskeySignInResponse
-): Promise<PublicKeyCredential> {
-  const options = getPasskeyCredentialRequestOptions(
-    debugStartPasskeySignInResponse,
-    name
-  );
-  console.log("options: ");
-  console.log(options);
-  const credential = (await navigator.credentials.get({
-    publicKey: options
-  })) as PublicKeyCredential;
-  console.log('credential 1: ');
-  console.log(credential);
-  return credential;
-}
-
+// Enroll
 export async function debugPrepareStartPasskeyEnrollmentRequest(
   user: User
 ): Promise<string> {
   const userInternal = getModularInstance(user) as UserInternal;
   const idToken = await userInternal.getIdToken();
-  const request: StartPasskeyEnrollmentRequest = { idToken
-  };
+  const request: StartPasskeyEnrollmentRequest = { idToken };
   return JSON.stringify(request);
 }
 
@@ -288,30 +270,50 @@ export async function debugGetFinalizePasskeyEnrollmentResponse(
   return JSON.stringify(response);
 }
 
-export async function debugPrepareStartPasskeySignInRequest(): Promise<StartPasskeySignInRequest> {
-  return {};
+// Sign in
+export async function debugPrepareStartPasskeySignInRequest(): Promise<string> {
+  return JSON.stringify({});
 }
 
 export async function debugGetStartPasskeySignInResponse(
   auth: Auth,
-  request: StartPasskeySignInRequest
-): Promise<StartPasskeySignInResponse> {
+  requestStr: string
+): Promise<string> {
   const authInternal = _castAuth(auth);
-  return startPasskeySignIn(authInternal, request);
+  const request = JSON.parse(requestStr) as StartPasskeySignInRequest;
+  const response = await startPasskeySignIn(authInternal, request);
+  return JSON.stringify(response);
+}
+
+export async function debugGetCredential(
+  name: string,
+  responseStr: string
+): Promise<string> {
+  const response = JSON.parse(responseStr) as StartPasskeySignInResponse;
+  const options = getPasskeyCredentialRequestOptions(response, name);
+  const credential = (await navigator.credentials.get({
+    publicKey: options
+  })) as PublicKeyCredential;
+  const credentialStr = JSON.stringify(publicKeyCredentialToJSON(credential));
+  return credentialStr;
 }
 
 export async function debugPrepareFinalizePasskeySignInRequest(
-  credential: PublicKeyCredential
-): Promise<FinalizePasskeySignInRequest> {
-  return {
-    authenticatorAuthenticationResponse: publicKeyCredentialToJSON(credential)
+  credentialStr: string
+): Promise<string> {
+  const credentialJSON = JSON.parse(credentialStr) as PublicKeyCredentialJSON;
+  const request: FinalizePasskeySignInRequest = {
+    authenticatorAuthenticationResponse: credentialJSON
   };
+  return JSON.stringify(request);
 }
 
 export async function debugGetFinalizePasskeySignInResponse(
   auth: Auth,
-  request: FinalizePasskeySignInRequest
-): Promise<FinalizePasskeySignInResponse> {
+  requestStr: string
+): Promise<string> {
   const authInternal = _castAuth(auth);
-  return finalizePasskeySignIn(authInternal, request);
+  const request = JSON.parse(requestStr) as FinalizePasskeySignInRequest;
+  const reponse = await finalizePasskeySignIn(authInternal, request);
+  return JSON.stringify(reponse);
 }

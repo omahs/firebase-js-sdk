@@ -544,128 +544,11 @@ function onEnrollPasskey() {
   );
 }
 
-function arrayBufferToBase64(buffer) {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary);
-}
-
-function publicKeyCredentialToJSONString(pubKeyCred) {
-  if (pubKeyCred instanceof PublicKeyCredential) {
-    const serializedCredential = {
-      id: pubKeyCred.id,
-      type: pubKeyCred.type,
-      rawId: arrayBufferToBase64(pubKeyCred.rawId),
-      response: {
-        clientDataJSON: arrayBufferToBase64(pubKeyCred.response.clientDataJSON)
-        // Add other fields as necessary, converting ArrayBuffer fields to Base64
-      }
-    };
-
-    // Handle AttestationResponse if it exists
-    if (pubKeyCred.response instanceof AuthenticatorAttestationResponse) {
-      serializedCredential.response.attestationObject = arrayBufferToBase64(
-        pubKeyCred.response.attestationObject
-      );
-    }
-
-    // Handle AuthenticatorAssertionResponse if it exists
-    if (pubKeyCred.response instanceof AuthenticatorAssertionResponse) {
-      serializedCredential.response.authenticatorData = arrayBufferToBase64(
-        pubKeyCred.response.authenticatorData
-      );
-      serializedCredential.response.signature = arrayBufferToBase64(
-        pubKeyCred.response.signature
-      );
-      serializedCredential.response.userHandle = pubKeyCred.response.userHandle
-        ? arrayBufferToBase64(pubKeyCred.response.userHandle)
-        : null;
-    }
-
-    return JSON.stringify(serializedCredential);
-  }
-  throw new Error('Input was not a PublicKeyCredential object');
-}
-
-function base64ToArrayBuffer(base64) {
-  const binaryString = window.atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
-function JSONStringtoPublicKeyCredential(jsonString) {
-  const serializedCredential = JSON.parse(jsonString);
-
-  const pubKeyCred = {
-    id: serializedCredential.id,
-    type: serializedCredential.type,
-    rawId: base64ToArrayBuffer(serializedCredential.rawId),
-    response: {
-      clientDataJSON: base64ToArrayBuffer(
-        serializedCredential.response.clientDataJSON
-      )
-      // Add other fields as necessary, converting Base64 fields back to ArrayBuffer
-    }
-  };
-
-  // Handle AttestationResponse if it exists
-  if (serializedCredential.response.attestationObject) {
-    pubKeyCred.response.attestationObject = base64ToArrayBuffer(
-      serializedCredential.response.attestationObject
-    );
-  }
-
-  // Handle AuthenticatorAssertionResponse if it exists
-  if (serializedCredential.response.authenticatorData) {
-    pubKeyCred.response.authenticatorData = base64ToArrayBuffer(
-      serializedCredential.response.authenticatorData
-    );
-    pubKeyCred.response.signature = base64ToArrayBuffer(
-      serializedCredential.response.signature
-    );
-    pubKeyCred.response.userHandle = serializedCredential.response.userHandle
-      ? base64ToArrayBuffer(serializedCredential.response.userHandle)
-      : null;
-  }
-
-  // Convert ArrayBuffer fields to Base64 for display purposes
-  pubKeyCred.rawId = arrayBufferToBase64(pubKeyCred.rawId);
-  pubKeyCred.response.clientDataJSON = arrayBufferToBase64(
-    pubKeyCred.response.clientDataJSON
-  );
-  if (pubKeyCred.response.attestationObject) {
-    pubKeyCred.response.attestationObject = arrayBufferToBase64(
-      pubKeyCred.response.attestationObject
-    );
-  }
-  if (pubKeyCred.response.authenticatorData) {
-    pubKeyCred.response.authenticatorData = arrayBufferToBase64(
-      pubKeyCred.response.authenticatorData
-    );
-    pubKeyCred.response.signature = arrayBufferToBase64(
-      pubKeyCred.response.signature
-    );
-    if (pubKeyCred.response.userHandle) {
-      pubKeyCred.response.userHandle = arrayBufferToBase64(
-        pubKeyCred.response.userHandle
-      );
-    }
-  }
-
-  return pubKeyCred;
-}
-
 // Enroll
 async function onPrepareStartEnrollRequest() {
-  const requestStr = await debugPrepareStartPasskeyEnrollmentRequest(activeUser());
+  const requestStr = await debugPrepareStartPasskeyEnrollmentRequest(
+    activeUser()
+  );
   $('#start-enroll-request').val(requestStr);
 }
 
@@ -707,38 +590,41 @@ async function onGetFinalizeEnrollResponse() {
 
 // Sign in
 async function onPrepareStartSignInRequest() {
-  const request = await debugPrepareStartPasskeySignInRequest();
-  $('#start-signin-request').val(JSON.stringify(request));
+  const requestStr = await debugPrepareStartPasskeySignInRequest();
+  $('#start-signin-request').val(requestStr);
 }
 
 async function onGetStartSignInResponse() {
-  const request = JSON.parse($('#start-signin-request').val());
-  const response = await debugGetStartPasskeySignInResponse(auth, request);
-  $('#start-signin-response').val(JSON.stringify(response));
+  const requestStr = $('#start-signin-request').val();
+  const responseStr = await debugGetStartPasskeySignInResponse(
+    auth,
+    requestStr
+  );
+  $('#start-signin-response').val(responseStr);
 }
 
 async function onGetCredentialSignIn() {
   const name = $('#name-signin').val();
-  const response = JSON.parse($('#start-signin-response').val());
-  const credential = await debugGetCredential(name, response);
-  const cred_str = publicKeyCredentialToJSONString(credential);
-  $('#credential-signin').val(cred_str);
+  const responseStr = $('#start-signin-response').val();
+  const credentialStr = await debugGetCredential(name, responseStr);
+  $('#credential-signin').val(credentialStr);
 }
 
 async function onPrepareFinalizeSignInRequest() {
-  const name = $('#name').val();
-  const cred_str = $('#credential-signin').val();
-  const credential = JSONStringtoPublicKeyCredential(cred_str);
-  console.log(credential);
-  const request = await debugPrepareFinalizePasskeySignInRequest(credential);
-  $('#finalize-signin-request').val(JSON.stringify(request));
+  const credentialStr = $('#credential-signin').val();
+  const requestStr = await debugPrepareFinalizePasskeySignInRequest(
+    credentialStr
+  );
+  $('#finalize-signin-request').val(requestStr);
 }
 
 async function onGetFinalizeSignInResponse() {
-  const request = JSON.parse($('#finalize-signin-request').val());
-  const response = await debugGetFinalizePasskeySignInResponse(auth, request);
-  console.log(response);
-  $('#finalize-signin-response').val(JSON.stringify(response));
+  const requestStr = $('#finalize-signin-request').val();
+  const responseStr = await debugGetFinalizePasskeySignInResponse(
+    auth,
+    requestStr
+  );
+  $('#finalize-signin-response').val(responseStr);
 }
 
 /**

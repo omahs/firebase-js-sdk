@@ -40,25 +40,28 @@ export interface PublicKeyCredentialJSON {
   response: AuthenticatorResponseJSON;
 }
 
+// Convert ArrayBuffer to Base64
+function bufferToBase64(buffer: ArrayBuffer): string {
+  const byteArray = Array.from(new Uint8Array(buffer));
+  return btoa(String.fromCharCode.apply(null, byteArray));
+}
+
 export function publicKeyCredentialToJSON(
   pubKeyCred: PublicKeyCredential
 ): PublicKeyCredentialJSON {
-  console.log('pubKeyCredentialToJSON');
+  console.log('pubKeyCredentialToJSON-before');
   console.log(pubKeyCred);
-  // Convert ArrayBuffer to Base64
-  function bufferToBase64(buffer: ArrayBuffer): string {
-    const byteArray = Array.from(new Uint8Array(buffer));
-    return btoa(String.fromCharCode.apply(null, byteArray));
-  }
 
   const clientDataJSON = bufferToBase64(pubKeyCred.response.clientDataJSON);
+
+  let result = {};
 
   // Handle Attestation Response (Registration)
   if (pubKeyCred.response instanceof AuthenticatorAttestationResponse) {
     const attestationObject = bufferToBase64(
       pubKeyCred.response.attestationObject
     );
-    return {
+    result = {
       id: pubKeyCred.id,
       type: pubKeyCred.type,
       rawId: bufferToBase64(pubKeyCred.rawId),
@@ -78,7 +81,7 @@ export function publicKeyCredentialToJSON(
     const userHandle = pubKeyCred.response.userHandle
       ? bufferToBase64(pubKeyCred.response.userHandle)
       : undefined;
-    return {
+    result = {
       id: pubKeyCred.id,
       type: pubKeyCred.type,
       rawId: bufferToBase64(pubKeyCred.rawId),
@@ -91,7 +94,10 @@ export function publicKeyCredentialToJSON(
     };
   }
 
-  throw new Error('Unknown PublicKeyCredential response type.');
+  console.log('pubKeyCredentialToJSON-after');
+  console.log(result);
+
+  return result as PublicKeyCredentialJSON;
 }
 
 // Enrollment types.

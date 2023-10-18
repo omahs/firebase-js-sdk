@@ -854,15 +854,6 @@
             <div class="tab-pane" id="debugging-section">
               <div class="group">Enroll</div>
               <form class="form form-bordered no-submit">
-                <input type="text" name="Name" id="name-enroll"
-                       class="form-control" placeholder="Name" />
-                <textarea type="text" name="Credential" id="credential-enroll"
-                          class="form-control" placeholder="Credential"></textarea>
-                <button class="btn btn-block btn-primary" id="create-credential-enroll">
-                  Create Credential
-                </button>
-              </form>
-              <form class="form form-bordered no-submit">
                 <textarea name="Start Enroll Request" id="start-enroll-request"
                           class="form-control" placeholder="Request"></textarea>
                 <button class="btn btn-block btn-primary" id="prepare-start-enroll-request">
@@ -877,6 +868,15 @@
                 </button>
               </form>   
               <form class="form form-bordered no-submit">
+                <input type="text" name="Name" id="name-enroll"
+                       class="form-control" placeholder="Name" />
+                <textarea type="text" name="Credential" id="credential-enroll"
+                          class="form-control" placeholder="Credential"></textarea>
+                <button class="btn btn-block btn-primary" id="create-credential-enroll">
+                  Create Credential
+                </button>
+              </form>
+              <form class="form form-bordered no-submit">
                 <textarea name="Finalize Enroll Request" id="finalize-enroll-request"
                           class="form-control" placeholder="Request"></textarea>
                 <button class="btn btn-block btn-primary" id="prepare-finalize-enroll-request">
@@ -890,18 +890,8 @@
                   Get Finalize Enroll Response
                 </button>
             </form>
-            </div>
 
             <div class="group">Sign In</div>
-              <form class="form form-bordered no-submit">
-                <input type="text" name="Name" id="name-signin"
-                       class="form-control" placeholder="Name" />
-                <textarea type="text" name="Credential" id="credential-signin"
-                          class="form-control" placeholder="Credential"></textarea>
-                <button class="btn btn-block btn-primary" id="get-credential-signin">
-                  Get Credential
-                </button>
-              </form>
               <form class="form form-bordered no-submit">
                 <textarea name="Start Sign In Request" id="start-signin-request"
                           class="form-control" placeholder="Request"></textarea>
@@ -914,6 +904,15 @@
                           class="form-control" placeholder="Response"></textarea>
                 <button class="btn btn-block btn-primary" id="get-start-signin-response">
                   Get Start Sign In Response
+                </button>
+              </form>
+              <form class="form form-bordered no-submit">
+                <input type="text" name="Name" id="name-signin"
+                       class="form-control" placeholder="Name" />
+                <textarea type="text" name="Credential" id="credential-signin"
+                          class="form-control" placeholder="Credential"></textarea>
+                <button class="btn btn-block btn-primary" id="get-credential-signin">
+                  Get Credential
                 </button>
               </form>
               <form class="form form-bordered no-submit">
@@ -930,6 +929,7 @@
                   Get Finalize Sign In Response
                 </button>
               </form>
+            </div>
 
             <div class="tab-pane" id="logs-section">
               <pre class="well logs"></pre>

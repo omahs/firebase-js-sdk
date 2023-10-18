@@ -29,7 +29,9 @@ import {
   StartPasskeySignInResponse,
   finalizePasskeySignIn,
   FinalizePasskeySignInRequest,
-  FinalizePasskeySignInResponse
+  FinalizePasskeySignInResponse,
+  AuthenticatorRegistrationResponse,
+  publicKeyCredentialToJSON
 } from '../../api/account_management/passkey';
 import { UserInternal } from '../../model/user';
 import { _castAuth } from '../auth/auth_impl';
@@ -109,40 +111,6 @@ export async function signInWithPasskey(
   return Promise.reject(new Error('signInWithPasskey Not implemented'));
 }
 
-// function publicKeyCredentialToJSON(pubKeyCred: PublicKeyCredential): any {
-//   if (pubKeyCred instanceof Array) {
-//     let arr = [];
-//     for (let i of pubKeyCred) arr.push(publicKeyCredentialToJSON(i));
-//     return arr;
-//   }
-
-//   if (pubKeyCred instanceof ArrayBuffer) {
-//     return bufferToBase64(pubKeyCred);
-//   }
-
-//   if (pubKeyCred instanceof Object) {
-//     let obj: any = {};
-
-//     for (let key in pubKeyCred) {
-//       obj[key] = publicKeyCredentialToJSON((pubKeyCred as any)[key]);
-//     }
-
-//     return obj;
-//   }
-
-//   return pubKeyCred;
-// }
-
-// function bufferToBase64(buffer: ArrayBuffer): string {
-//   let binary = '';
-//   let bytes = new Uint8Array(buffer);
-//   let len = bytes.byteLength;
-//   for (let i = 0; i < len; i++) {
-//     binary += String.fromCharCode(bytes[i]);
-//   }
-//   return window.btoa(binary);
-// }
-
 /**
  * Links the user account with the given phone number.
  *
@@ -185,7 +153,7 @@ export async function enrollPasskey(
     const idToken = await userInternal.getIdToken();
     const finalizeEnrollmentRequest: FinalizePasskeyEnrollmentRequest = {
       idToken,
-      authenticatorRegistrationResponse: credential,
+      authenticatorRegistrationResponse: publicKeyCredentialToJSON(credential),
       name,
       displayName: name
     };
@@ -337,7 +305,7 @@ export async function debugPrepareFinalizePasskeyEnrollmentRequest(
   const idToken = await userInternal.getIdToken();
   return {
     idToken,
-    authenticatorRegistrationResponse: credential,
+    authenticatorRegistrationResponse: publicKeyCredentialToJSON(credential),
     name
   };
 }

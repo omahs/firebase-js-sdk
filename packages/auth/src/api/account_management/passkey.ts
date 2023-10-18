@@ -24,7 +24,73 @@ import {
   _performApiRequest
 } from '../index';
 import { IdTokenResponse } from '../../model/id_token';
-import { type } from 'os';
+
+interface AuthenticatorResponseJSON {
+  clientDataJSON: string;
+  attestationObject?: string;
+  authenticatorData?: string;
+  signature?: string;
+  userHandle?: string;
+}
+
+interface PublicKeyCredentialJSON {
+  id: string;
+  type: string;
+  rawId: string;
+  response: AuthenticatorResponseJSON;
+}
+
+export function publicKeyCredentialToJSON(
+  pubKeyCred: PublicKeyCredential
+): PublicKeyCredentialJSON {
+  // Convert ArrayBuffer to Base64
+  function bufferToBase64(buffer: ArrayBuffer): string {
+    const byteArray = Array.from(new Uint8Array(buffer));
+    return btoa(String.fromCharCode.apply(null, byteArray));
+  }
+
+  const clientDataJSON = bufferToBase64(pubKeyCred.response.clientDataJSON);
+
+  // Handle Attestation Response (Registration)
+  if (pubKeyCred.response instanceof AuthenticatorAttestationResponse) {
+    const attestationObject = bufferToBase64(
+      pubKeyCred.response.attestationObject
+    );
+    return {
+      id: pubKeyCred.id,
+      type: pubKeyCred.type,
+      rawId: bufferToBase64(pubKeyCred.rawId),
+      response: {
+        clientDataJSON,
+        attestationObject
+      }
+    };
+  }
+
+  // Handle Assertion Response (Authentication)
+  if (pubKeyCred.response instanceof AuthenticatorAssertionResponse) {
+    const authenticatorData = bufferToBase64(
+      pubKeyCred.response.authenticatorData
+    );
+    const signature = bufferToBase64(pubKeyCred.response.signature);
+    const userHandle = pubKeyCred.response.userHandle
+      ? bufferToBase64(pubKeyCred.response.userHandle)
+      : undefined;
+    return {
+      id: pubKeyCred.id,
+      type: pubKeyCred.type,
+      rawId: bufferToBase64(pubKeyCred.rawId),
+      response: {
+        clientDataJSON,
+        authenticatorData,
+        signature,
+        userHandle
+      }
+    };
+  }
+
+  throw new Error('Unknown PublicKeyCredential response type.');
+}
 
 export interface AuthenticatorAuthenticationResponse {
   credentialId: Uint8Array;
@@ -66,7 +132,7 @@ export async function startPasskeyEnrollment(
 export interface FinalizePasskeyEnrollmentRequest {
   idToken?: string;
   tenantId?: string;
-  authenticatorRegistrationResponse?: PublicKeyCredential;
+  authenticatorRegistrationResponse?: PublicKeyCredentialJSON;
   name?: string;
   displayName?: string;
 }

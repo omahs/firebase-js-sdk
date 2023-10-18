@@ -722,10 +722,7 @@ async function onPrepareStartSignInRequest() {
 
 async function onGetStartSignInResponse() {
   const request = JSON.parse($('#start-signin-request').val());
-  const response = await debugGetStartPasskeySignInResponse(
-    auth,
-    request
-  );
+  const response = await debugGetStartPasskeySignInResponse(auth, request);
   $('#start-signin-response').val(JSON.stringify(response));
 }
 
@@ -734,18 +731,13 @@ async function onPrepareFinalizeSignInRequest() {
   const cred_str = $('#credential-signin').val();
   const credential = JSONtoPublicKeyCredential(cred_str);
   console.log(credential);
-  const request = await debugPrepareFinalizePasskeySignInRequest(
-    credential
-  );
+  const request = await debugPrepareFinalizePasskeySignInRequest(credential);
   $('#finalize-signin-request').val(JSON.stringify(request));
 }
 
 async function onGetFinalizeSignInResponse() {
   const request = JSON.parse($('#finalize-signin-request').val());
-  const response = await debugGetFinalizePasskeySignInResponse(
-    auth,
-    request
-  );
+  const response = await debugGetFinalizePasskeySignInResponse(auth, request);
   console.log(response);
   $('#finalize-signin-response').val(JSON.stringify(response));
 }

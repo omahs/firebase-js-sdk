@@ -92,18 +92,6 @@ export function publicKeyCredentialToJSON(
   throw new Error('Unknown PublicKeyCredential response type.');
 }
 
-export interface AuthenticatorAuthenticationResponse {
-  credentialId: Uint8Array;
-  credentialType?: string;
-  authenticatorAssertionResponse: AuthenticatorAssertionResponse;
-}
-
-export interface AuthenticatorRegistrationResponse {
-  credentialId: Uint8Array;
-  credentialType?: string;
-  authenticatorAttestationResponse: AuthenticatorAttestationResponse;
-}
-
 // Enrollment types.
 export interface StartPasskeyEnrollmentRequest {
   idToken?: string;
@@ -160,7 +148,6 @@ export async function finalizePasskeyEnrollment(
 
 // Sign-in types.
 export interface StartPasskeySignInRequest {
-  sessionId?: string;
   tenantId?: string;
 }
 
@@ -184,9 +171,10 @@ export async function startPasskeySignIn(
 }
 
 export interface FinalizePasskeySignInRequest {
-  authenticatorAuthenticationResponse?: PublicKeyCredential;
-  sessionId?: Uint8Array;
   tenantId?: string;
+  authenticatorAuthenticationResponse?: PublicKeyCredentialJSON;
+  name?: string;
+  displayName?: string;
 }
 
 export interface FinalizePasskeySignInResponse extends IdTokenResponse {

@@ -30,13 +30,11 @@ import {
   finalizePasskeySignIn,
   FinalizePasskeySignInRequest,
   FinalizePasskeySignInResponse,
-  AuthenticatorRegistrationResponse,
   publicKeyCredentialToJSON
 } from '../../api/account_management/passkey';
 import { UserInternal } from '../../model/user';
 import { _castAuth } from '../auth/auth_impl';
-import { async, getModularInstance } from '@firebase/util';
-import { signUp } from '../../api/authentication/sign_up';
+import { getModularInstance } from '@firebase/util';
 import { OperationType } from '../../model/enums';
 import { UserCredentialImpl } from '../user/user_credential_impl';
 import { signInAnonymously } from './anonymous';
@@ -44,71 +42,59 @@ import { signInAnonymously } from './anonymous';
 export async function signInWithPasskey(
   auth: Auth,
   name: string,
-  autoSignUp: boolean = true
+  manualSignUp: boolean = false
 ): Promise<UserCredential> {
-  // console.log('!!!!! signInWithPasskey');
-  // const authInternal = _castAuth(auth);
-  // const encoder = new TextEncoder();
+  const authInternal = _castAuth(auth);
 
-  // // Start Passkey Sign in
-  // const startSignInRequest: StartPasskeySigninRequest = {
-  //   sessionId: 'fake-session-id'
-  // };
-  // // const startSignInResponse = await startPasskeyEnrollment(authInternal, startSignInRequest);
-  // const startSignInResponse: StartPasskeySigninResponse = {
-  //   localId: 'fake-local-id',
-  //   credentialRequestOptions: {
-  //     challenge: encoder.encode('fake-challenge').buffer,
-  //     rpId: 'localhost',
-  //     userVerification: 'required'
-  //   }
-  // };
-  // // Get crendentials
-  // await PasskeyAuthProvider.getCredential(
-  //   startSignInResponse.credentialRequestOptions
-  // )
-  //   .then(async cred => {
-  //     // Sign in an existing user
-  //     console.log('getCredential then');
-  //     console.log(cred);
-  //     // Finish Passkey Sign in
-  //     const finalizeSignInRequest = {
-  //       sessionId: encoder.encode('fake-session-id'),
-  //       authenticatorAuthenticationResponse: {
-  //         credentialId: encoder.encode(cred?.id),
-  //         authenticatorAssertionResponse: cred?.response,
-  //         credentialType: cred?.type
-  //       }
-  //     };
-  //     // const finalizeSignInResponse = await finalizePasskeySignin(authInternal, finalizeSignInRequest);
-  //     const finalizeSignInResponse = {
-  //       localId: 'fake-local-id',
-  //       idToken: 'fake-id-token',
-  //       refreshToken: 'fake-refresh-token'
-  //     };
-  //     const operationType = OperationType.SIGN_IN;
-  //     const userCredential = await UserCredentialImpl._fromIdTokenResponse(
-  //       authInternal,
-  //       operationType,
-  //       finalizeSignInResponse
-  //     );
-  //     await auth.updateCurrentUser(userCredential.user);
-  //     return userCredential;
-  //   })
-  //   .catch(err => {
-  //     console.log('getCredential catch');
-  //     console.log(err);
-  //     // Sign up a new user
-  //     signInAnonymously(authInternal)
-  //       .then(async userCredential => {
-  //         await auth.updateCurrentUser(userCredential.user);
-  //         await enrollPasskey(auth.currentUser!);
-  //       })
-  //       .catch(err => {
-  //         console.log(err);
-  //       });
-  //   });
-  return Promise.reject(new Error('signInWithPasskey Not implemented'));
+  // Start Passkey Sign in
+  const startSignInRequest: StartPasskeySignInRequest = {};
+  const startSignInResponse = await startPasskeySignIn(
+    authInternal,
+    startSignInRequest
+  );
+
+  const options = getPasskeyCredentialRequestOptions(startSignInResponse, name);
+
+  // Get the crendential
+  let credential;
+  try {
+    credential = (await navigator.credentials.get({
+      publicKey: options
+    })) as PublicKeyCredential;
+
+    const finalizeSignInRequest: FinalizePasskeySignInRequest = {
+      authenticatorAuthenticationResponse:
+        publicKeyCredentialToJSON(credential),
+      name,
+      displayName: name
+    };
+    const finalizeSignInResponse = await finalizePasskeySignIn(
+      authInternal,
+      finalizeSignInRequest
+    );
+
+    const operationType = OperationType.SIGN_IN;
+    const userCredential = await UserCredentialImpl._fromIdTokenResponse(
+      authInternal,
+      operationType,
+      finalizeSignInResponse
+    );
+    await auth.updateCurrentUser(userCredential.user);
+    return userCredential;
+  } catch (error) {
+    if (
+      (error as Error).message.includes(
+        'The operation either timed out or was not allowed.'
+      ) &&
+      !manualSignUp
+    ) {
+      // If the user is not signed up, sign them up anonymously
+      const userCredential = await signInAnonymously(authInternal);
+      const user = userCredential.user;
+      return enrollPasskey(user, name);
+    }
+    return Promise.reject(error);
+  }
 }
 
 /**
@@ -134,12 +120,10 @@ export async function enrollPasskey(
   const startEnrollmentRequest: StartPasskeyEnrollmentRequest = {
     idToken
   };
-  console.log(startEnrollmentRequest);
   const startEnrollmentResponse = await startPasskeyEnrollment(
     authInternal,
     startEnrollmentRequest
   );
-  console.log(startEnrollmentResponse);
 
   // Create the crendential
   try {
@@ -157,12 +141,10 @@ export async function enrollPasskey(
       name,
       displayName: name
     };
-    console.log(finalizeEnrollmentRequest);
     const finalizeEnrollmentResponse = await finalizePasskeyEnrollment(
       authInternal,
       finalizeEnrollmentRequest
     );
-    console.log(finalizeEnrollmentResponse);
 
     const operationType = OperationType.LINK;
     const userCredential = await UserCredentialImpl._fromIdTokenResponse(
@@ -175,27 +157,6 @@ export async function enrollPasskey(
     return Promise.reject(err);
   }
 }
-
-// static async getCredential(
-//   options: PublicKeyCredentialRequestOptions
-// ): Promise<PublicKeyCredential> {
-//   const publicKey = {
-//     challenge: options.challenge,
-//     rpId: options.rpId,
-//     userVerification: options.userVerification,
-//     mediation: 'conditional'
-//   };
-
-//   try {
-//     const cred = (await navigator.credentials.get({
-//       publicKey
-//     })) as PublicKeyCredential;
-//     return cred;
-//   } catch (err) {
-//     console.error(err);
-//     throw err;
-//   }
-// }
 
 function getPasskeyCredentialCreationOptions(
   response: StartPasskeyEnrollmentResponse,
@@ -217,7 +178,7 @@ function getPasskeyCredentialCreationOptions(
   const rpId = window.location.hostname;
   options.rp!.id = rpId;
   options.rp!.name = rpId;
-  
+
   const challengeBase64 = options.challenge as unknown as string;
   options.challenge = Uint8Array.from(atob(challengeBase64), c =>
     c.charCodeAt(0)
@@ -255,11 +216,9 @@ export async function debugCreateCredential(
     debugStartPasskeyEnrollmentResponse,
     name
   );
-  console.log(options);
   const credential = (await navigator.credentials.create({
     publicKey: options
   })) as PublicKeyCredential;
-  console.log(credential);
   return credential;
 }
 
@@ -335,7 +294,7 @@ export async function debugPrepareFinalizePasskeySignInRequest(
   credential: PublicKeyCredential
 ): Promise<FinalizePasskeySignInRequest> {
   return {
-    authenticatorAuthenticationResponse: credential
+    authenticatorAuthenticationResponse: publicKeyCredentialToJSON(credential)
   };
 }
 

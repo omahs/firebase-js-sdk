@@ -159,11 +159,38 @@ export async function enrollPasskey(
   }
 }
 
+function base64ToBuffer(base64: string): ArrayBuffer {
+  const binaryStr = atob(base64);
+  const len = binaryStr.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryStr.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+function convertExcludeCredentials(
+  options:
+    | PublicKeyCredentialCreationOptions
+    | PublicKeyCredentialRequestOptions
+): void {
+  // First, check if the excludeCredentials property exists on the provided options
+  if ('excludeCredentials' in options && options.excludeCredentials) {
+    for (const cred of options.excludeCredentials) {
+      if (typeof cred.id === 'string') {
+        // Assuming Base64 encoded strings
+        cred.id = base64ToBuffer(cred.id);
+      }
+    }
+  }
+}
+
 function getPasskeyCredentialCreationOptions(
   response: StartPasskeyEnrollmentResponse,
   name: string = ''
 ): PublicKeyCredentialCreationOptions {
   const options = response.credentialCreationOptions!;
+  console.log(options);
 
   if (name === '') {
     name = 'Unnamed account (Web)';
@@ -175,7 +202,8 @@ function getPasskeyCredentialCreationOptions(
   const userId = options.user!.id as unknown as string;
   options.user!.id = Uint8Array.from(atob(userId), c => c.charCodeAt(0));
 
-  const rpId = window.location.hostname;
+  // const rpId = window.location.hostname;
+  const rpId = 'fb-sa-upgraded.web.app';
   options.rp!.id = rpId;
   options.rp!.name = rpId;
 
@@ -184,6 +212,9 @@ function getPasskeyCredentialCreationOptions(
     c.charCodeAt(0)
   );
 
+  convertExcludeCredentials(options);
+
+  console.log(options);
   return options;
 }
 
@@ -204,6 +235,8 @@ function getPasskeyCredentialRequestOptions(
   options.challenge = Uint8Array.from(atob(challengeBase64), c =>
     c.charCodeAt(0)
   );
+
+  convertExcludeCredentials(options);
 
   return options;
 }

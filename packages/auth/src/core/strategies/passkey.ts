@@ -249,7 +249,7 @@ export async function debugPrepareStartPasskeyEnrollmentRequest(
   const userInternal = getModularInstance(user) as UserInternal;
   const idToken = await userInternal.getIdToken();
   const request: StartPasskeyEnrollmentRequest = { idToken };
-  return JSON.stringify(request);
+  return JSON.stringify(request, null, 2);
 }
 
 export async function debugGetStartPasskeyEnrollmentResponse(
@@ -260,7 +260,7 @@ export async function debugGetStartPasskeyEnrollmentResponse(
   const authInternal = _castAuth(userInternal.auth);
   const request = JSON.parse(requestStr) as StartPasskeyEnrollmentRequest;
   const response = await startPasskeyEnrollment(authInternal, request);
-  return JSON.stringify(response);
+  return JSON.stringify(response, null, 2);
 }
 
 export async function debugCreateCredential(
@@ -272,7 +272,7 @@ export async function debugCreateCredential(
   const credential = (await navigator.credentials.create({
     publicKey: options
   })) as PublicKeyCredential;
-  const credentialStr = JSON.stringify(publicKeyCredentialToJSON(credential));
+  const credentialStr = JSON.stringify(publicKeyCredentialToJSON(credential), null, 2);
   return credentialStr;
 }
 
@@ -289,7 +289,7 @@ export async function debugPrepareFinalizePasskeyEnrollmentRequest(
     authenticatorRegistrationResponse: credentialJSON,
     name
   };
-  return JSON.stringify(request);
+  return JSON.stringify(request, null, 2);
 }
 
 export async function debugGetFinalizePasskeyEnrollmentResponse(
@@ -300,12 +300,12 @@ export async function debugGetFinalizePasskeyEnrollmentResponse(
   const authInternal = _castAuth(userInternal.auth);
   const request: FinalizePasskeyEnrollmentRequest = JSON.parse(requestStr);
   const response = await finalizePasskeyEnrollment(authInternal, request);
-  return JSON.stringify(response);
+  return JSON.stringify(response, null, 2);
 }
 
 // Sign in
 export async function debugPrepareStartPasskeySignInRequest(): Promise<string> {
-  return JSON.stringify({});
+  return JSON.stringify({}, null, 2);
 }
 
 export async function debugGetStartPasskeySignInResponse(
@@ -315,7 +315,7 @@ export async function debugGetStartPasskeySignInResponse(
   const authInternal = _castAuth(auth);
   const request = JSON.parse(requestStr) as StartPasskeySignInRequest;
   const response = await startPasskeySignIn(authInternal, request);
-  return JSON.stringify(response);
+  return JSON.stringify(response, null, 2);
 }
 
 export async function debugGetCredential(
@@ -327,8 +327,7 @@ export async function debugGetCredential(
   const credential = (await navigator.credentials.get({
     publicKey: options
   })) as PublicKeyCredential;
-  const credentialStr = JSON.stringify(publicKeyCredentialToJSON(credential));
-  return credentialStr;
+  return JSON.stringify(publicKeyCredentialToJSON(credential), null, 2);
 }
 
 export async function debugPrepareFinalizePasskeySignInRequest(
@@ -338,7 +337,7 @@ export async function debugPrepareFinalizePasskeySignInRequest(
   const request: FinalizePasskeySignInRequest = {
     authenticatorAuthenticationResponse: credentialJSON
   };
-  return JSON.stringify(request);
+  return JSON.stringify(request, null, 2);
 }
 
 export async function debugGetFinalizePasskeySignInResponse(
@@ -348,5 +347,5 @@ export async function debugGetFinalizePasskeySignInResponse(
   const authInternal = _castAuth(auth);
   const request = JSON.parse(requestStr) as FinalizePasskeySignInRequest;
   const reponse = await finalizePasskeySignIn(authInternal, request);
-  return JSON.stringify(reponse);
+  return JSON.stringify(reponse, null, 2);
 }

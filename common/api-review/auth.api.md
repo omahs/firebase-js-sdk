@@ -94,6 +94,8 @@ export interface Auth {
     readonly settings: AuthSettings;
     signOut(): Promise<void>;
     tenantId: string | null;
+    // (undocumented)
+    updateApiHost(apiHost: string): void;
     updateCurrentUser(user: User | null): Promise<void>;
     useDeviceLanguage(): void;
 }
@@ -869,6 +871,9 @@ export class TwitterAuthProvider extends BaseOAuthProvider {
 export function unlink(user: User, providerId: string): Promise<User>;
 
 export { Unsubscribe }
+
+// @public (undocumented)
+export function updateApiHost(auth: Auth, apiHost: string): void;
 
 // @public
 export function updateCurrentUser(auth: Auth, user: User | null): Promise<void>;

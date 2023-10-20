@@ -2084,6 +2084,14 @@ function onCopyLastUser() {
 /** Applies selected auth settings change. */
 function onApplyAuthSettingsChange() {
   try {
+    const prodApiHost = 'identitytoolkit.googleapis.com';
+    const stagingApiHost = 'staging-identitytoolkit.sandbox.googleapis.com';
+    if ($('input[name=api-host]:checked').val() === 'prod') {
+      auth.updateApiHost(prodApiHost);
+    } else {
+      auth.updateApiHost(stagingApiHost);
+    }
+
     auth.settings.appVerificationDisabledForTesting =
       $('input[name=enable-app-verification]:checked').val() === 'No';
     alertSuccess('Auth settings changed');

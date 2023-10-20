@@ -176,6 +176,17 @@
               <!-- Development mode APIs -->
               <div class="group">Development mode APIs</div>
               <form class="form form-bordered no-submit">
+              <div class="btn-group radio-block" id="api-host-selection"
+                   data-toggle="buttons">
+                <label class="btn btn-primary active">
+                  <input type="radio" name="api-host" value="prod"
+                         autocomplete="off" checked> Prod
+                </label>
+                <label class="btn btn-primary">
+                  <input type="radio" name="api-host" value="staging"
+                         autocomplete="off"> Staging
+                </label>
+              </div>
                 <div class="btn-group radio-block" id="enable-app-verification-selection"
                      data-toggle="buttons">
                   <label class="btn btn-primary active">

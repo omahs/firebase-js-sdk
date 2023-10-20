@@ -210,6 +210,10 @@ export function onAuthStateChanged(
 export function useDeviceLanguage(auth: Auth): void {
   getModularInstance(auth).useDeviceLanguage();
 }
+export function updateApiHost(auth: Auth, apiHost: string): void {
+  getModularInstance(auth).updateApiHost(apiHost);
+}
+
 /**
  * Asynchronously sets the provided user as {@link Auth.currentUser} on the
  * {@link Auth} instance.

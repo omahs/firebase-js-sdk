@@ -202,8 +202,7 @@ function getPasskeyCredentialCreationOptions(
   const userId = options.user!.id as unknown as string;
   options.user!.id = Uint8Array.from(atob(userId), c => c.charCodeAt(0));
 
-  // const rpId = window.location.hostname;
-  const rpId = 'fb-sa-upgraded.web.app';
+  const rpId = window.location.hostname;
   options.rp!.id = rpId;
   options.rp!.name = rpId;
 

@@ -316,6 +316,7 @@ export async function _verifyPhoneNumber(
 
       // startEnrollPhoneMfa action
       if ('phoneNumber' in phoneInfoOptions) {
+        console.log('verifyPhoneNumber - startEnrollPhoneMfa action');
         _assert(
           session.type === MultiFactorSessionType.ENROLL,
           auth,
@@ -343,6 +344,7 @@ export async function _verifyPhoneNumber(
       }
       // startSignInPhoneMfa action
       else {
+        console.log('verifyPhoneNumber - startSignInPhoneMfa action');
         _assert(
           session.type === MultiFactorSessionType.SIGN_IN,
           auth,
@@ -375,6 +377,7 @@ export async function _verifyPhoneNumber(
     }
     // sendPhoneVerificationCode action
     else {
+      console.log('verifyPhoneNumber - sendPhoneVerificationCode action');
       const sendPhoneVerificationCodeRequest: SendPhoneVerificationCodeRequest = {
         phoneNumber: phoneInfoOptions.phoneNumber,
         recaptchaToken: recaptchaV2Token

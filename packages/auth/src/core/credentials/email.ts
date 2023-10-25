@@ -32,7 +32,7 @@ import { AuthErrorCode } from '../errors';
 import { _fail } from '../util/assert';
 import { AuthCredential } from './auth_credential';
 import { handleRecaptchaFlow } from '../../platform_browser/recaptcha/recaptcha_enterprise_verifier';
-import { RecaptchaActionName, RecaptchaClientType } from '../../api';
+import { RecaptchaActionName, RecaptchaClientType, RecaptchaProvider } from '../../api';
 /**
  * Interface that represents the credentials returned by {@link EmailAuthProvider} for
  * {@link ProviderId}.PASSWORD
@@ -127,7 +127,8 @@ export class EmailAuthCredential extends AuthCredential {
           auth,
           request,
           RecaptchaActionName.SIGN_IN_WITH_PASSWORD,
-          signInWithPassword
+          signInWithPassword,
+          RecaptchaProvider.EMAIL_PASSWORD_PROVIDER
         );
       case SignInMethod.EMAIL_LINK:
         return signInWithEmailLink(auth, {

@@ -569,7 +569,7 @@ async function onCreateCredentialEnroll() {
 }
 
 async function onPrepareFinalizeEnrollRequest() {
-  const name = $('#name').val();
+  const name = $('#name-enroll').val();
   const credentialStr = $('#credential-enroll').val();
   const requestStr = await debugPrepareFinalizePasskeyEnrollmentRequest(
     activeUser(),

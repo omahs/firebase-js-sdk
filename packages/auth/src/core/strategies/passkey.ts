@@ -286,7 +286,8 @@ export async function debugPrepareFinalizePasskeyEnrollmentRequest(
   const request: FinalizePasskeyEnrollmentRequest = {
     idToken,
     authenticatorRegistrationResponse: credentialJSON,
-    name
+    name,
+    displayName: name
   };
   return JSON.stringify(request, null, 2);
 }

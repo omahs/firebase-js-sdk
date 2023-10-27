@@ -177,13 +177,13 @@ export async function injectRecaptchaFields<T>(
 
   if (action === RecaptchaActionName.MFA_ENROLLMENT || action === RecaptchaActionName.MFA_SIGNIN) {
     if ('phoneEnrollmentInfo' in newRequest){
-      // const phoneNumber = (newRequest as unknown as StartPhoneMfaEnrollmentRequest).phoneEnrollmentInfo.phoneNumber;
-      // let recaptchaToken = (newRequest as unknown as StartPhoneMfaEnrollmentRequest).phoneEnrollmentInfo.recaptchaToken;
+      const phoneNumber = (newRequest as unknown as StartPhoneMfaEnrollmentRequest).phoneEnrollmentInfo.phoneNumber;
+      const recaptchaToken = (newRequest as unknown as StartPhoneMfaEnrollmentRequest).phoneEnrollmentInfo.recaptchaToken;
 
       Object.assign(newRequest, {
         'phoneEnrollmentInfo': {
-          // phoneNumber,
-          // recaptchaToken,
+          phoneNumber,
+          recaptchaToken,
           captchaResponse,
           'clientType': RecaptchaClientType.WEB,
           'recaptchaVersion': RecaptchaVersion.ENTERPRISE,
@@ -191,10 +191,10 @@ export async function injectRecaptchaFields<T>(
       });
     } else
      if ('phoneSignInInfo' in newRequest) {
-      // let recaptchaToken = (newRequest as unknown as StartPhoneMfaSignInRequest).phoneSignInInfo.recaptchaToken;
+      const recaptchaToken = (newRequest as unknown as StartPhoneMfaSignInRequest).phoneSignInInfo.recaptchaToken;
       Object.assign(newRequest, {
         'phoneSignInInfo':{
-          // recaptchaToken,
+          recaptchaToken,
           captchaResponse,
           'clientType': RecaptchaClientType.WEB,
           'recaptchaVersion': RecaptchaVersion.ENTERPRISE,
@@ -214,7 +214,7 @@ export async function injectRecaptchaFields<T>(
       'recaptchaVersion': RecaptchaVersion.ENTERPRISE
     });
   
-  
+
   return newRequest;
 }
 

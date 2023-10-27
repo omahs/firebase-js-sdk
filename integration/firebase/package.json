@@ -8,9 +8,9 @@
   },
   "devDependencies": {
     "firebase": "10.5.2",
-    "@types/chai": "4.3.5",
+    "@types/chai": "4.3.9",
     "@types/mocha": "9.1.1",
-    "chai": "4.3.7",
+    "chai": "4.3.10",
     "karma": "6.4.2",
     "karma-babel-preprocessor": "8.0.2",
     "karma-chrome-launcher": "3.2.0",

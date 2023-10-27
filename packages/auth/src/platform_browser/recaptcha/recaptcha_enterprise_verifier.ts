@@ -31,6 +31,8 @@ import { AuthInternal } from '../../model/auth';
 import { _castAuth } from '../../core/auth/auth_impl';
 import * as jsHelpers from '../load_js';
 import { AuthErrorCode } from '../../core/errors';
+import { StartPhoneMfaEnrollmentRequest } from '../../api/account_management/mfa';
+import { StartPhoneMfaSignInRequest } from '../../api/authentication/mfa';
 
 const RECAPTCHA_ENTERPRISE_URL =
   'https://www.google.com/recaptcha/enterprise.js?render=';
@@ -173,18 +175,15 @@ export async function injectRecaptchaFields<T>(
   
   const newRequest = { ...request };
 
-
   if (action === RecaptchaActionName.MFA_ENROLLMENT || action === RecaptchaActionName.MFA_SIGNIN) {
-    if ('phoneEnrollmentInfo' in newRequest) {
-      Object.assign(newRequest, {
-        // 'phoneEnrollmentInfo': Object.assign({}, newRequest.phoneEnrollmentInfo, {
-        //   captchaResponse,
-        //   'clientType': RecaptchaClientType.WEB,
-        //   'recaptchaVersion': RecaptchaVersion.ENTERPRISE,
-        // }),
+    if ('phoneEnrollmentInfo' in newRequest){
+      // const phoneNumber = (newRequest as unknown as StartPhoneMfaEnrollmentRequest).phoneEnrollmentInfo.phoneNumber;
+      // let recaptchaToken = (newRequest as unknown as StartPhoneMfaEnrollmentRequest).phoneEnrollmentInfo.recaptchaToken;
 
+      Object.assign(newRequest, {
         'phoneEnrollmentInfo': {
-          'recaptchaResponse': 'example',
+          // phoneNumber,
+          // recaptchaToken,
           captchaResponse,
           'clientType': RecaptchaClientType.WEB,
           'recaptchaVersion': RecaptchaVersion.ENTERPRISE,
@@ -192,14 +191,10 @@ export async function injectRecaptchaFields<T>(
       });
     } else
      if ('phoneSignInInfo' in newRequest) {
+      // let recaptchaToken = (newRequest as unknown as StartPhoneMfaSignInRequest).phoneSignInInfo.recaptchaToken;
       Object.assign(newRequest, {
-        // 'phoneSignInInfo': Object.assign({}, newRequest.phoneSignInInfo, {
-        //   captchaResponse,
-        //   'clientType': RecaptchaClientType.WEB,
-        //   'recaptchaVersion': RecaptchaVersion.ENTERPRISE,
-        // }),
-
         'phoneSignInInfo':{
+          // recaptchaToken,
           captchaResponse,
           'clientType': RecaptchaClientType.WEB,
           'recaptchaVersion': RecaptchaVersion.ENTERPRISE,
@@ -235,7 +230,7 @@ export async function handleRecaptchaFlow<TRequest, TResponse>(
   actionMethod: ActionMethod<TRequest, TResponse>,
   recaptchaProvider: RecaptchaProvider
 ): Promise<TResponse> {
-  if (recaptchaProvider === RecaptchaProvider.PHONE_PROVIDER) {
+  if (recaptchaProvider === RecaptchaProvider.EMAIL_PASSWORD_PROVIDER) {
     if (
       authInstance
         ._getRecaptchaConfig()
@@ -266,12 +261,12 @@ export async function handleRecaptchaFlow<TRequest, TResponse>(
         }
       });
     }
-  } else if (recaptchaProvider === RecaptchaProvider.EMAIL_PASSWORD_PROVIDER) {
+  } else if (recaptchaProvider === RecaptchaProvider.PHONE_PROVIDER) {
     console.log('handleRecaptchaFlow - in phone if');
     if (
       authInstance
         ._getRecaptchaConfig()
-        ?.isProviderEnabled(RecaptchaProvider.EMAIL_PASSWORD_PROVIDER)) {
+        ?.isProviderEnabled(RecaptchaProvider.PHONE_PROVIDER)) {
           console.log('handleRecaptchaFlow - when phone enable');
           const requestWithRecaptcha = await injectRecaptchaFields(
             authInstance,
